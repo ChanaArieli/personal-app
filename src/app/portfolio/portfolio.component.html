@@ -1,0 +1,136 @@
+<div class="portfolio" dir="rtl">
+
+  <header class="header">
+    <div>
+      <h1>התיק שלי</h1>
+      <span>נתוני שוק מעודכנים לפתיחת האפליקציה</span>
+    </div>
+
+    <div class="currency">
+      <span>שער דולר</span>
+
+      @if (loading) {
+        <strong>טוען...</strong>
+      } @else {
+        <strong>₪{{ usdIls | number:'1.2-4' }}</strong>
+      }
+    </div>
+  </header>
+
+  @if (error) {
+    <div class="error">
+      {{ error }}
+    </div>
+  }
+
+
+
+  <section class="positions">
+
+    <div class="section-header">
+      <h2>המניות שלי</h2>
+
+      <button (click)="openAddModal()">
+        + הוספת מניה
+      </button>
+      @if (isModalOpen) {
+  <div class="modal-backdrop" (click)="closeAddModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h3>הוספת מניה חדשה</h3>
+
+      <form (ngSubmit)="addPosition()">
+        <div class="form-group">
+          <label>סימול המניה (Symbol)</label>
+          <input
+            type="text"
+            [(ngModel)]="newSymbol"
+            name="symbol"
+            placeholder="לדוגמה: AAPL, NVDA, TSLA"
+            autofocus
+            required
+          />
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" (click)="closeAddModal()">ביטול</button>
+          <button type="submit" class="btn-submit" [disabled]="!newSymbol.trim()">הוסף מניה</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+    </div>
+
+    @if (loading) {
+
+      <div class="loading">
+        טוען נתוני מניות...
+      </div>
+
+    } @else {
+
+      <div class="table">
+
+        <div class="row header-row">
+          <span>מניה</span>
+          <span>מחיר</span>
+          <span>שינוי היום</span>
+          <span></span>
+        </div>
+
+        @for (position of positions; track position.id) {
+
+          <div class="row">
+
+            <div>
+              <strong>
+                {{ position.symbol }}
+              </strong>
+
+              <small>
+                {{ position.name }}
+              </small>
+            </div>
+
+           <div>
+  <div>
+  <strong>
+    {{ (position.currency === 'ILS' || position.symbol.endsWith('.TA')) ? '₪' : '$' }}{{ position.price | number:'1.2-2' }}
+  </strong>
+</div>
+</div>
+
+            <div
+              class="change"
+              [class.positive]="(position.changePercent ?? 0) >= 0"
+              [class.negative]="(position.changePercent ?? 0) < 0"
+            >
+              @if ((position.changePercent ?? 0) >= 0) {
+                ↑
+              } @else {
+                ↓
+              }
+
+              {{ position.changePercent | number:'1.2-2' }}%
+            </div>
+
+            <div>
+              <button
+                class="remove-button"
+                (click)="removePosition(position.id)"
+              >
+                הורד
+              </button>
+            </div>
+
+          </div>
+
+        }
+
+      </div>
+
+    }
+
+  </section>
+
+</div>
